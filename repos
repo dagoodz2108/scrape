@@ -8,10 +8,10 @@ from email.mime.multipart import MIMEMultipart
 # ---------------------------
 # CONFIGURATION
 # ---------------------------
-LOGIN_URL = "https://www.example.com/login"
-PRODUCT_URL = "https://www.example.com/product-page"
-USERNAME = "your_username"
-PASSWORD = "your_password"
+LOGIN_URL = "https://indirectorders.verizonwireless.com/xt_webloginvalidation.aspx"
+PRODUCT_URL = "https://indirectorders.verizonwireless.com/xt_product.aspx?sku=MD0D4LL/A-D%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20&itemID=16983&parentKey=~~~~~001940000100150"
+USERNAME = "dgoodrich@teamwireless.com"
+PASSWORD = "Team31581"
 STOCK_KEYWORD = "In Stock"
 
 # Email settings
