@@ -1,0 +1,87 @@
+import requests
+from bs4 import BeautifulSoup
+import time
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+# ---------------------------
+# CONFIGURATION
+# ---------------------------
+LOGIN_URL = "https://www.example.com/login"
+PRODUCT_URL = "https://www.example.com/product-page"
+USERNAME = "your_username"
+PASSWORD = "your_password"
+STOCK_KEYWORD = "In Stock"
+
+# Email settings
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+SENDER_EMAIL = "youremail@gmail.com"
+SENDER_PASSWORD = "your-app-password"
+RECIPIENT_EMAIL = "recipientemail@gmail.com"
+
+# ---------------------------
+# EMAIL FUNCTION
+# ---------------------------
+def send_email():
+    subject = "Stock Alert!"
+    body = f"The item is now in stock!\nCheck here: {PRODUCT_URL}"
+
+    msg = MIMEMultipart()
+    msg["From"] = SENDER_EMAIL
+    msg["To"] = RECIPIENT_EMAIL
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    try:
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, msg.as_string())
+        server.quit()
+        print("📧 Email sent successfully!")
+    except Exception as e:
+        print(f"❌ Error sending email: {e}")
+
+# ---------------------------
+# LOGIN + STOCK CHECK
+# ---------------------------
+def check_stock():
+    session = requests.Session()
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    try:
+        # Step 1: Login (adjust form field names!)
+        login_payload = {
+            "username": USERNAME,  # change field names if different
+            "password": PASSWORD,
+        }
+        session.post(LOGIN_URL, data=login_payload, headers=headers)
+
+        # Step 2: Fetch product page
+        response = session.get(PRODUCT_URL, headers=headers)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        page_text = soup.get_text().lower()
+
+        if STOCK_KEYWORD.lower() in page_text:
+            print("✅ Item is in stock!")
+            send_email()
+            return True
+        else:
+            print("❌ Still out of stock.")
+
+    except Exception as e:
+        print(f"Error checking stock: {e}")
+
+    return False
+
+# ---------------------------
+# LOOP
+# ---------------------------
+while True:
+    if check_stock():
+        break  # stop after first success
+    time.sleep(60)
